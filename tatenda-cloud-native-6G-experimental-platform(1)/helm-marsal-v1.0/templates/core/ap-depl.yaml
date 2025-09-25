@@ -1,0 +1,100 @@
+{{- if .Values.ap.enabled }}
+
+# Service for AP (Application Provider)
+apiVersion: v1
+kind: Service
+metadata:
+  name: ap-svc
+  labels:
+    app: ap
+spec:
+  selector:
+    app: ap
+  ports:
+    - name: ui
+      port: 8000
+      targetPort: 8000
+    - name: m1
+      port: 5555
+      targetPort: 5555
+    - name: m5
+      port: 7778
+      targetPort: 7778
+
+---
+
+# Deployment for AP (Application Provider)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ap-depl
+  labels:
+    app: ap
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ap
+  template:
+    metadata:
+      labels:
+        app: ap
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - {{ .Values.nodes.application | quote }}
+
+      volumes:
+        - name: ap-config
+          configMap:
+            name: ap-config
+        - name: shared-dir
+          emptyDir: {}
+
+      initContainers:
+        - name: init-entrypoint-permissions
+          image: busybox:1.36.1-uclibc
+          command: ["/bin/sh", "-c"]
+          args:
+            - cp /config/application-provider-entrypoint.sh /shared/entrypoint.sh && chmod +x /shared/entrypoint.sh
+          volumeMounts:
+            - name: ap-config
+              mountPath: /config
+            - name: shared-dir
+              mountPath: /shared
+
+      containers:
+        - name: ap
+          image: tatendaupc/tatenda-ap:latest
+          imagePullPolicy: IfNotPresent
+          command: ["/shared/entrypoint.sh"]
+          env:
+            - name: M1_PORT
+              value: "5555"
+            - name: RUN_MSAF_CONFIGURATION_TOOL
+              value: "true"
+            - name: RUN_MANAGEMENT_UI
+              value: "true"
+            - name: OPTIONS_ENDPOINT
+              value: "http://af-svc:5555/3gpp-m1/v2/provisioning-sessions/"
+          ports:
+            - containerPort: 8000
+            - containerPort: 5555
+            - containerPort: 7778
+          volumeMounts:
+            - name: ap-config
+              mountPath: /etc/rt-5gms/af-sync.conf
+              subPath: af-sync.conf
+            - name: ap-config
+              mountPath: /etc/rt-5gms/streams.json
+              subPath: streams.json
+            # Removed mounting entrypoint script here because it's now copied to shared-dir by initContainer
+            - name: shared-dir
+              mountPath: /shared
+{{- end }}

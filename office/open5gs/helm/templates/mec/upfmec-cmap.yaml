@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: upfmec-cmap
+  labels:
+    nf-type: upfmec
+data:
+  upf.yaml: |
+    logger:
+        file:
+          path: /opt/open5gs/var/log/open5gs/upf.log
+    upf:
+        pfcp:
+           server:
+             - address: 10.10.159.6
+           client:
+              smf:
+                - address: 10.10.159.50
+        gtpu:
+           server:
+             - address: 0.0.0.0 
+               advertise: 192.168.88.39
+        session:
+          - subnet: 10.46.0.0/16
+            gateway: 10.46.0.1
+            dnn: {{ .Values.dnn2 }}
+            dev: ogstun2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

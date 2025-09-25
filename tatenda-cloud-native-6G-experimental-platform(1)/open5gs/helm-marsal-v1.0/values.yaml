@@ -1,0 +1,65 @@
+# Default values for open5gs-epc-helm.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+open5gs:
+  image:
+    repository: sbarrachina/open5gs
+    tag: "v2.4.0"
+    pullPolicy: Always
+
+amarisoftsf:
+  image:
+    repository: sbarrachina/amarisoft-websocket
+    tag: "v1.0"
+    pullPolicy: Always
+
+webui:
+  image:
+    repository: registry.gitlab.com/infinitydon/registry/open5gs-webui
+    pullPolicy: IfNotPresent
+    tag: "v2.2.2"
+  ingress:
+    enabled: false
+    ## Ingress annotations done as key:value pairs
+    ## For a full list of possible ingress annotations, please see
+    ## ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md
+    ##
+    ## If tls is set to true, annotation ingress.kubernetes.io/secure-backends: "true" will automatically be set
+    # annotations:
+    #   kubernetes.io/ingress.class: nginx
+
+    hosts:
+      - name: open5gs-epc.local
+        paths: ["/"]
+        ## Set this to true in order to enable TLS on the ingress record
+        tls: false
+
+        ## Optionally specify the TLS hosts for the ingress record
+        ## Useful when the Ingress controller supports www-redirection
+        ## If not specified, the above host name will be used
+        # tlsHosts:
+        # - www.open5gs-epc.local
+        # - open5gs-epc.local
+
+        ## If TLS is set to true, you can declare what secret will store the key/certificate for TLS
+        # tlsSecret: open5gs-epc.local-tls    
+
+# Data Network Names
+dnn: internet
+dnn2: mecnet
+
+amf:
+  mcc: '001'
+  mnc: '01'
+  tac: '1'
+
+# Where to deploy the NFs
+nodes:
+  cluster: 'o5gs-worker-1'
+  mec: 'o5gs-worker-2'
+  monitor: 'o5gs-moni'
+
+# Primary/Native kubernetes interface
+k8s:
+ interface: enp5s0

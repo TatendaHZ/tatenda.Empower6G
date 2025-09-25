@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: as
+  namespace: af-core
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: as
+  template:
+    metadata:
+      labels:
+        app: as
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - kube-app-server
+      containers:
+        - name: as
+          image: tatendaupc/tatenda-as:latest
+          command: ["5gms-application-server"]
+          args: ["-c", "/etc/5gmag/as/conf/application-server.conf"]
+          ports:
+            - containerPort: 80   # HTTP
+            - containerPort: 7777 # M3 interface
+          volumeMounts:
+            - name: as-config
+              mountPath: /etc/5gmag/as/conf/application-server.conf
+              subPath: application-server.conf
+            - name: shared-dir
+              mountPath: /shared
+      volumes:
+        - name: as-config
+          configMap:
+            name: as-config
+        - name: shared-dir
+          emptyDir: {}
+

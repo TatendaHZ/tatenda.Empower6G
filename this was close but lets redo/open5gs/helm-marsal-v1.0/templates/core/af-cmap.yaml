@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: msaf-config
+data:
+  msaf.yaml: |
+{{ .Files.Get "files/msaf.yaml" | indent 4 }}
+
+
+ 
+
+  
+
+    sbi:
+        server:
+          no_tls: true
+        client:
+          no_tls: true
+
+
+
+    

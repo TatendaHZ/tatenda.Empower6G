@@ -1,0 +1,7 @@
+apiVersion: v2
+name: msaf
+description: 5GMS Application Function Helm Chart
+type: application
+version: 0.1.0
+appVersion: "latest"
+

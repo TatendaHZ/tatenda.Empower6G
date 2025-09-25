@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: udr-cmap
+  labels:
+    nf-type: udr
+data:
+  udr.yaml: |
+    logger:
+        file: /open5gs/udr.log
+
+    db_uri: mongodb://10.97.101.228/open5gs
+
+    udr:
+      sbi:
+      - addr: 0.0.0.0
+        advertise: 10.108.204.243
+
+    nrf:
+     sbi:
+      name: 10.97.232.251  
+    sbi:
+        server:
+          no_tls: true
+        client:
+          no_tls: true

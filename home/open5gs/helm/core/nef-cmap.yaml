@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nef-cmap
+  labels:
+    nf-type: nef
+data:
+  nef.yaml: |
+    logger:
+        file: /open5gs/nef.log
+
+    nef:
+      sbi:
+      - addr: 0.0.0.0
+        advertise: nef-svc
+
+    nrf:
+      sbi:
+        name: nrf-svc
+
+    

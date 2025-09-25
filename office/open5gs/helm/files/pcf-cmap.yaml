@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pcf-cmap
+  labels:
+    nf-type: pcf
+data:
+  pcf.yaml: |
+    logger:
+      file:
+        path: /open5gs/pcf.log
+
+    db_uri: mongodb://10.98.77.174/open5gs
+
+    pcf:
+      # Policy section
+      policy:
+        default_unit: 1   # 1 = Mbps
+        supi_range:
+          - "001010000000000-001019999999999"
+          - "315010000000001-315010999999999"
+        plmn_id:
+          mcc: "001"
+          mnc: "001"
+
+        # Default slice configuration (required)
+        slice:
+          - sst: 1
+            default_indicator: true
+            session:
+              - name: internet
+                type: 1       # 1: IPv4, 2: IPv6, 3: IPv4v6
+                ambr:
+                  downlink:
+                    value: 1
+                    unit: 1   # 0: bps, 1: Kbps, 2: Mbps, 3: Gbps, 4: Tbps
+                  uplink:
+                    value: 1
+                    unit: 1
+                qos:
+                  index: 9
+                  arp:
+                    priority_level: 8
+                    pre_emption_vulnerability: 1
+                    pre_emption_capability: 1
+
+      sbi:
+        server:
+          - address: 0.0.0.0
+            port: 80
+            advertise: 10.109.86.164
+        client:
+          nrf:
+            - uri: http://10.101.41.194:80
+
+    sbi:
+      server:
+        no_tls: true
+      client:
+        no_tls: true

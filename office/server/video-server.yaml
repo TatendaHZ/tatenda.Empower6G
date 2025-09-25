@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: video-server-svc
+  namespace: open5gs
+spec:
+  selector:
+    app: video-server
+  type: NodePort
+  ports:
+    - port: 5004
+      targetPort: 5004
+      nodePort: 30504
+      protocol: UDP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: video-server
+  namespace: open5gs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: video-server
+  template:
+    metadata:
+      labels:
+        app: video-server
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: kube-app-server  # replace with your node name
+      containers:
+        - name: video-server
+          image: tatendaupc/video-server:latest
+          ports:
+            - containerPort: 5004
+              protocol: UDP

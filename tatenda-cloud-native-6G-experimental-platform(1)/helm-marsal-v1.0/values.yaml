@@ -1,0 +1,68 @@
+# Default values for open5gs-epc-helm
+
+open5gs:
+  image:
+    repository: jorgebaranda/open5gs
+    tag: "v2.6.4"
+    pullPolicy: Always
+
+amarisoftsf:
+  image:
+    repository: tatendaupc/amarisoft-websocket
+    tag: "v1.1"
+    pullPolicy: Always
+
+webui:
+  image:
+    repository: registry.gitlab.com/infinitydon/registry/open5gs-webui
+    pullPolicy: IfNotPresent
+    tag: "v2.2.2"
+  ingress:
+    enabled: false
+    hosts:
+      - name: open5gs-epc.local
+        paths: ["/"]
+        tls: false
+
+dnn: internet
+dnn2: mecnet
+
+amf:
+  mcc: '001'
+  mnc: '01'
+  tac: '1'
+
+upf:
+  addr: 10.46.0.1/16
+  net: 10.46.0.0/16
+  dev: ogstun
+  ip_lb: 10.96.68.200
+
+nodes:
+  cluster: 'kube-core'
+  mec: 'kube-mec'
+  monitor: 'kube-worker1'
+  application: 'kube-app-server'
+
+k8s:
+  interface: eth0
+
+af:
+  enabled: true
+  image:
+    repository: tatendaupc/tatenda-af
+    tag: latest
+    pullPolicy: IfNotPresent
+
+as:
+  enabled: true
+  image:
+    repository: tatendaupc/tatenda-as
+    tag: latest
+    pullPolicy: IfNotPresent
+ap:
+  enabled: true
+  image:
+    repository: tatendaupc/tatenda-ps
+    tag: latest
+    pullPolicy: IfNotPresent

@@ -1,0 +1,16 @@
+{{- if .Values.ap.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: 5gms-shared-pvc
+  labels:
+    app: 5gms-shared
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+{{- end }}
+

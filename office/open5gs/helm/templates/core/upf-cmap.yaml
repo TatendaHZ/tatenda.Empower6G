@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: upf-cmap
+  labels:
+    nf-type: upf
+data:
+  upf.yaml: |
+    logger:
+        file:
+          path: /opt/open5gs/var/log/open5gs/upf.log
+          level: debug
+          domain: sbi
+    upf:
+        pfcp:
+           server:
+             - address: 10.10.159.60
+           client:
+              smf:
+                - address: 10.10.159.50
+        gtpu:
+           server:
+             - address: 0.0.0.0 
+               advertise: 192.168.88.41  
+        session:
+          - subnet: 10.45.0.0/16
+            gateway: 10.45.0.1
+            dnn: {{ .Values.dnn }}
+            dev: ogstun

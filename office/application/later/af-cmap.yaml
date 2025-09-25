@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: msaf-config
+data:
+  msaf.yaml: |
+{{ .Files.Get "files/msaf.yaml" | indent 4 }}
+
+
+
+
+
+   

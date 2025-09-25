@@ -1,0 +1,100 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: open5gs
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qod-tf
+  namespace: open5gs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: qod-tf
+  template:
+    metadata:
+      labels:
+        app: qod-tf
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: kube-worker1
+      containers:
+        - name: qod-tf
+          image: tatendaupc/qod-tf:0.8.0
+          env:
+            - name: NEF_HOST
+              value: "10.109.86.160"   # points to nef ClusterIP
+            - name: TF_HOST
+              value: "10.109.86.161"   # points to qod-tf ClusterIP
+          command: ["java"]
+          args:
+            - "--add-opens=java.base/java.net=ALL-UNNAMED"
+            - "-jar"
+            - "-Djava.security.egd=file:/dev/./urandom"
+            - "-Dlogging.file.path=/log"
+            - "-Dspring.profiles.active=local"
+            - "app.jar"
+          ports:
+            - containerPort: 9091
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qod-tf-svc
+  namespace: open5gs
+spec:
+  type: NodePort
+  clusterIP: 10.109.86.161
+  selector:
+    app: qod-tf
+  ports:
+    - port: 9091
+      targetPort: 9091
+      nodePort: 30991   # external access
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nef
+  namespace: open5gs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nef
+  template:
+    metadata:
+      labels:
+        app: nef
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: kube-worker1
+      containers:
+        - name: nef
+          image: tatendaupc/nef-lab:latest
+          env:
+            - name: NEF_HOST
+              value: "10.109.86.160"   # points to nef ClusterIP
+            - name: MONGODB_URI
+              value: "mongodb://10.98.77.174:27017/naas?authSource=admin"
+            - name: PCF_BASEPATH
+              value: "http://10.109.86.164:7777/npcf-policyauthorization/v1"
+          ports:
+            - containerPort: 8081
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nef-svc
+  namespace: open5gs
+spec:
+  type: NodePort
+  clusterIP: 10.109.86.160
+  selector:
+    app: nef
+  ports:
+    - port: 8081
+      targetPort: 8081
+      nodePort: 30881   # external access

@@ -1,0 +1,116 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: upf-svc
+  labels:
+    nf-type: upf
+spec:
+  type: NodePort
+  selector:
+    nf-type: upf
+  ports:
+    - name: pfcp
+      protocol: UDP
+      port: 8805
+      targetPort: 8805
+
+    - name: metrics
+      protocol: TCP
+      port: 9101
+      targetPort: 80
+  clusterIP: 10.98.254.68
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: upf-depl
+  labels:
+    nf-type: upf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      nf-type: upf
+  template:
+    metadata:
+      annotations:
+        linkerd.io/inject: disabled
+      labels:
+        nf-type: upf
+    spec:
+      containers:
+        - name: upf
+          image: "{{ .Values.open5gs.image.repository }}:{{ .Values.open5gs.image.tag }}"
+          imagePullPolicy: {{ .Values.open5gs.image.pullPolicy }}
+          securityContext:
+            privileged: true
+            
+          ports:
+            - containerPort: 2152
+              protocol: UDP
+              hostPort: 2152
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              ip tuntap add name ogstun mode tun;
+              ip addr add 10.45.0.1/16 dev ogstun;
+              sysctl -w net.ipv6.conf.all.disable_ipv6=1;
+              ip link set ogstun up;
+              echo 1 > /proc/sys/net/ipv4/ip_forward;
+              iptables -t nat -A POSTROUTING -s 10.45.0.0/16 ! -o ogstun -j MASQUERADE;
+              cd /open5gs;
+              ./install/bin/open5gs-upfd -c /open5gs/config-map/upf.yaml;
+              echo '********* Should not get here --> this means UPF is broken!'
+          volumeMounts:
+            - name: upf-cmap
+              mountPath: /open5gs/config-map/upf.yaml
+              subPath: upf.yaml
+            - name: dev-net-tun
+              mountPath: /dev/net/tun
+
+        - name: upf-netstats
+          image: busybox
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              while true; do
+                echo "# HELP upf_bytes_rx Bytes received on ogstun" > /var/metrics/upf.prom;
+                cat /sys/class/net/ogstun/statistics/rx_bytes | awk '{print "upf_bytes_rx " $1}' >> /var/metrics/upf.prom;
+                echo "# HELP upf_bytes_tx Bytes sent on ogstun" >> /var/metrics/upf.prom;
+                cat /sys/class/net/ogstun/statistics/tx_bytes | awk '{print "upf_bytes_tx " $1}' >> /var/metrics/upf.prom;
+                sleep 5;
+              done
+          volumeMounts:
+            - name: metrics
+              mountPath: /var/metrics
+
+        - name: upf-exporter
+          image: nginx:alpine
+          ports:
+            - containerPort: 9101
+          volumeMounts:
+            - name: metrics
+              mountPath: /usr/share/nginx/html
+            - name: nginx-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+          command: ["/bin/sh", "-c"]
+          args: ["nginx -g 'daemon off;'"]
+
+      volumes:
+        - name: upf-cmap
+          configMap:
+            name: upf-cmap
+        - name: dev-net-tun
+          hostPath:
+            path: /dev/net/tun
+            type: CharDevice
+        - name: metrics
+          emptyDir: {}
+        - name: nginx-config
+          configMap:
+            name: upf-exporter-cmap
+
+      nodeSelector:
+        kubernetes.io/hostname: {{ .Values.nodes.cluster }}

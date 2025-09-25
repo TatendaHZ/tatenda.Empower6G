@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: upf-servicemonitor
+  labels:
+    release: prometheus  # must match kube-prometheus-stack’s release label
+spec:
+  selector:
+    matchLabels:
+      nf-type: upf  # label from your upf-svc
+  namespaceSelector:
+    matchNames:
+      - open5gs  # change if your UPF is in another namespace
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 5s

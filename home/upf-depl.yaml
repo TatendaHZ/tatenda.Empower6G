@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: upf-svc
+  labels:
+    nf-type: upf
+spec:
+  type: LoadBalancer  # 👈 enables external access
+  selector:
+    nf-type: upf
+  ports:
+    - name: pfcp
+      protocol: UDP
+      port: 8805         # external port for PFCP
+      targetPort: 8805   # internal port in container
+    - name: gtpu
+      protocol: UDP
+      port: 2152         # external port for GTP-U
+      targetPort: 2152   # internal port in container
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: upf-depl
+  labels:
+    nf-type: upf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      nf-type: upf
+  template:
+    metadata:
+      annotations:
+        linkerd.io/inject: disabled
+      labels:
+        nf-type: upf
+    spec:
+      containers:
+        - name: upf
+          image: "{{ .Values.open5gs.image.repository }}:{{ .Values.open5gs.image.tag }}"
+          imagePullPolicy: {{ .Values.open5gs.image.pullPolicy }}
+          securityContext:
+            privileged: true
+          command: ["/bin/sh", "-c"]
+          args:
+            - ip tuntap add name ogstun mode tun;
+              ip addr add 10.45.0.1/16 dev ogstun;
+              sysctl -w net.ipv6.conf.all.disable_ipv6=1;
+              ip link set ogstun up;
+              sh -c "echo 1 > /proc/sys/net/ipv4/ip_forward";
+              iptables -t nat -A POSTROUTING -s 10.45.0.0/16 ! -o ogstun -j MASQUERADE;
+              cd /open5gs;
+              ./install/bin/open5gs-upfd -c /open5gs/config-map/upf.yaml;
+              echo '********* Should not get here --> this means UPF is broken!'
+          volumeMounts:
+            - name: upf-cmap
+              mountPath: /open5gs/config-map/upf.yaml
+              subPath: "upf.yaml"
+            - name: dev-net-tun
+              mountPath: /dev/net/tun
+
+      volumes:
+        - name: upf-cmap
+          configMap:
+            name: upf-cmap
+        - name: dev-net-tun
+          hostPath:
+            path: /dev/net/tun
+
+      nodeSelector:
+        kubernetes.io/hostname: {{ .Values.nodes.cluster }}

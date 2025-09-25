@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: smf-cmap
+  labels:
+    nf-type: smf
+data:
+  smf.yaml: |
+    logger:
+        file:
+          path: /opt/open5gs/var/log/open5gs/smf.log
+          level: debug
+          domain: sbi
+
+
+    parameter:
+        no_ipv6: true
+
+    smf:
+        sbi:   
+          server:  
+            - address: 0.0.0.0
+              port: 7777
+              advertise: 10.100.175.252
+          client:
+            nrf:
+              - uri: http://10.101.41.194:7777
+        pfcp:
+          server:
+            - address: 10.10.159.50
+          client:
+             upf:
+               - address: 10.10.159.60
+                 dnn: {{ .Values.dnn }}
+               - address: 10.10.159.6
+                 dnn: {{ .Values.dnn2 }}
+        gtpc:
+          server:
+            - address: 10.10.159.50
+        gtpu:
+          server:
+            - address: 10.10.159.50  
+        session:  
+          - subnet: 10.45.0.0/16
+            gateway: 10.45.0.1
+            dnn: {{ .Values.dnn }}
+          - subnet: 10.46.0.0/16
+            gateway: 10.46.0.1
+            dnn: {{ .Values.dnn2 }}
+        dns:
+          - 8.8.8.8
+          - 8.8.4.4
+        mtu: 1400
+
+
+    sbi:
+        server:
+          no_tls: true
+        client:
+          no_tls: true

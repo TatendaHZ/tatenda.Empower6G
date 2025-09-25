@@ -1,0 +1,73 @@
+{{- if .Values.af.enabled }}
+# Service for AF (MSAF)
+apiVersion: v1
+kind: Service
+metadata:
+  name: af-svc
+  labels:
+    app: msaf
+spec:
+  selector:
+    app: msaf
+  ports:
+    - name: sbi
+      port: 82
+      targetPort: 82
+    - name: m1
+      port: 5555
+      targetPort: 5555
+    - name: m5
+      port: 7777
+      targetPort: 7777
+    - name: maf
+      port: 7778
+      targetPort: 7778 
+
+---
+
+# Deployment for AF (MSAF)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: msaf
+  labels:
+    app: msaf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: msaf
+  template:
+    metadata:
+      labels:
+        app: msaf
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - {{ .Values.nodes.application | quote }}
+      containers:
+        - name: msaf
+          image: "{{ .Values.af.image.repository }}:{{ .Values.af.image.tag }}"
+          imagePullPolicy: {{ .Values.af.image.pullPolicy }}
+          command: ["/usr/local/bin/open5gs-msafd"]
+          args: ["-c", "/usr/local/etc/open5gs/msaf.yaml"]
+          ports:
+            - containerPort: 82   # SBI
+            - containerPort: 5555 # M1
+            - containerPort: 7777 # M5
+            - containerPort: 7778 # MAF
+          volumeMounts:
+            - name: msaf-config-volume
+              mountPath: /usr/local/etc/open5gs/msaf.yaml
+              subPath: msaf.yaml
+      volumes:
+        - name: msaf-config-volume
+          configMap:
+            name: msaf-config
+{{- end }}

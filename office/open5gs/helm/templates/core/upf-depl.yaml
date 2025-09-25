@@ -1,0 +1,89 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: upf-svc
+  labels:
+    nf-type: upf
+spec:
+  type: NodePort
+  selector:
+    nf-type: upf
+  ports:
+    - name: pfcp
+      protocol: UDP
+      port: 8805
+      targetPort: 8805
+  clusterIP: 10.98.254.68
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: upf-depl
+  labels:
+    nf-type: upf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      nf-type: upf
+  template:
+    metadata:
+      annotations:
+        "cni.projectcalico.org/ipAddrs": "[\"{{ .Values.upf.ip_lb }}\"]"
+      labels:
+        nf-type: upf
+    spec:
+      containers:
+        - name: upf
+          image: "{{ .Values.open5gs.image.repository }}:{{ .Values.open5gs.image.tag }}"
+          imagePullPolicy: {{ .Values.open5gs.image.pullPolicy }}
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            privileged: true
+            capabilities:
+              add:
+                - NET_ADMIN
+                - SYS_ADMIN
+          ports:
+            - containerPort: 2152
+              protocol: UDP
+              hostPort: 2152
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              # Create TUN interface inside container
+              ip tuntap add name ogstun mode tun
+              ip addr add 10.45.0.1/16 dev ogstun
+              ip link set ogstun up
+              
+              # Enable IP forwarding and disable IPv6
+              sysctl -w net.ipv4.ip_forward=1
+              sysctl -w net.ipv6.conf.all.disable_ipv6=1
+              
+              # Setup NAT for the user plane
+              iptables -t nat -A POSTROUTING -s 10.45.0.0/16 ! -o ogstun -j MASQUERADE
+                
+              # Start UPF
+              cd /opt/open5gs
+              ./bin/open5gs-upfd -c /open5gs/config-map/upf.yaml
+              
+              echo '********* Should not get here --> this means UPF is broken!'
+          volumeMounts:
+            - name: upf-cmap
+              mountPath: /open5gs/config-map/upf.yaml
+              subPath: upf.yaml
+            - name: dev-net-tun
+              mountPath: /dev/net/tun
+
+      volumes:
+        - name: upf-cmap
+          configMap:
+            name: upf-cmap
+        - name: dev-net-tun
+          hostPath:
+            path: /dev/net/tun
+            type: CharDevice
+
+      nodeSelector:
+        kubernetes.io/hostname: {{ .Values.nodes.cluster }}

@@ -1,0 +1,40 @@
+{
+  "aspId": "5GMAG",
+  "appId": "5G-MAG_Reference_Tools",
+  "streams": {
+    "vod": {
+      "name": "Local Demo Stream",
+      "ingestURL": "http://10.96.0.200:80/",
+      "distributionConfigurations": [
+        {
+          "domainNameAlias": "192.168.88.38"
+        }
+      ],
+      "consumptionReporting": {
+        "reportingInterval": 5,
+        "samplePercentage": 100,
+        "locationReporting": true,
+        "accessReporting": true
+      },
+      "metricsReporting":[
+        {
+          "reportingInterval":5,
+          "samplePercentage":100,
+          "samplingPeriod":5
+        }
+      ]
+    }
+  },
+  "vodMedia": [
+    {
+      "name": "VoD: Test Video",
+      "stream": "vod",
+      "entryPoints": [
+        {
+          "relativePath": "test.mp4",
+          "contentType": "video/mp4"
+        }
+      ]
+    }
+  ]
+}

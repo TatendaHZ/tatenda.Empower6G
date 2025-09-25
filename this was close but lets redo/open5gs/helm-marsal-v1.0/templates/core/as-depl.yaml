@@ -1,0 +1,116 @@
+{{- if .Values.as.enabled }}
+
+# Service for AS (Application Server)
+apiVersion: v1
+kind: Service
+metadata:
+  name: as-svc
+  labels:
+    app: as
+spec:
+  type: NodePort               # <-- NodePort service
+  selector:
+    app: as
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      nodePort: 30085         # <-- fixed node port (optional)
+    - name: m3
+      port: 7777
+      targetPort: 7777
+
+---
+
+# Deployment for AS (Application Server)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: as-depl
+  labels:
+    app: as
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: as
+  template:
+    metadata:
+      labels:
+        app: as
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - {{ .Values.nodes.application | quote }}
+
+      initContainers:
+        - name: wait-for-m8
+          image: busybox:1.36.1-uclibc
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              echo "Waiting for /shared/m8.json to be available..." && \
+              while [ ! -f /shared/m8.json ]; do sleep 2; done && \
+              echo "m8.json is now available."
+          volumeMounts:
+            - name: shared-dir
+              mountPath: /shared
+
+        - name: copy-m8-to-html
+          image: busybox:1.36.1-uclibc
+          command: ["/bin/sh", "-c"]
+          args:
+            - mkdir -p /usr/share/nginx/html && cp /shared/m8.json /usr/share/nginx/html/
+          volumeMounts:
+            - name: shared-dir
+              mountPath: /shared
+            - name: html-dir
+              mountPath: /usr/share/nginx/html
+
+      containers:
+        - name: as
+          image: tatendaupc/tatenda-as:latest
+          imagePullPolicy: IfNotPresent
+          command: ["5gms-application-server"]
+          args: ["-c", "/etc/5gmag/as/conf/application-server.conf"]
+          ports:
+            - containerPort: 7777   # M3 interface
+          volumeMounts:
+            - name: as-config
+              mountPath: /etc/5gmag/as/conf/application-server.conf
+              subPath: application-server.conf
+            - name: shared-dir
+              mountPath: /shared
+
+        - name: nginx-sidecar
+          image: nginx:stable-alpine
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: html-dir
+              mountPath: /usr/share/nginx/html
+
+      readinessProbe:
+        httpGet:
+          path: /m8.json
+          port: 80
+        initialDelaySeconds: 5
+        periodSeconds: 5
+
+      volumes:
+        - name: as-config
+          configMap:
+            name: as-config
+        - name: shared-dir
+          persistentVolumeClaim:
+            claimName: 5gms-shared-pvc
+        - name: html-dir
+          emptyDir: {}
+
+{{- end }}

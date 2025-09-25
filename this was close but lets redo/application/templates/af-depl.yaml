@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: msaf
+  namespace: af-core
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: msaf
+  template:
+    metadata:
+      labels:
+        app: msaf
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - kube-app-server
+      containers:
+        - name: msaf
+          image: tatendaupc/tatenda-af:latest
+          imagePullPolicy: IfNotPresent
+          command: ["/usr/local/bin/open5gs-msafd"]
+          args: ["-c", "/usr/local/etc/open5gs/msaf.yaml"]
+          ports:
+            - containerPort: 80   # SBI
+            - containerPort: 5555 # M1
+            - containerPort: 7778 # M5
+          volumeMounts:
+            - name: msaf-config-volume
+              mountPath: /usr/local/etc/open5gs/msaf.yaml
+              subPath: msaf.yaml
+      volumes:
+        - name: msaf-config-volume
+          configMap:
+            name: msaf-config
+
