@@ -1,0 +1,3 @@
+marBwDl: "5000 Kbps"
+marBwUl: "50 Mbps"
+mediaType: VIDEO

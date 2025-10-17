@@ -7,7 +7,7 @@
       "ingestURL": "http://10.96.0.200:80/",
       "distributionConfigurations": [
         {
-          "domainNameAlias": "192.168.88.38"
+          "domainNameAlias": "192.168.88.36"
         }
       ],
       "consumptionReporting": {
@@ -16,11 +16,11 @@
         "locationReporting": true,
         "accessReporting": true
       },
-      "metricsReporting":[
+      "metricsReporting": [
         {
-          "reportingInterval":5,
-          "samplePercentage":100,
-          "samplingPeriod":5
+          "reportingInterval": 5,
+          "samplePercentage": 100,
+          "samplingPeriod": 5
         }
       ]
     }

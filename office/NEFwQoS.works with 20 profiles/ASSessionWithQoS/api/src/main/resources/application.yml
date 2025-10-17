@@ -1,0 +1,132 @@
+server:
+  port: ${NEF_PORT:8081}
+  http2:
+    enabled: true
+
+logging:
+  file:
+    name: spring.log
+
+spring:
+  data:
+    mongodb:
+      uri: ${MONGODB_URI}
+
+pcf:
+  basepath: ${PCF_BASEPATH}
+  notifuri: http://${NEF_HOST:localhost}:${NEF_PORT:8081}/notifications
+  # A string used to indicate the features supported by an API that is used as defined in clause 6.6 in 3GPP TS 29.500.
+  # The string shall contain a bitmask indicating supported features in hexadecimal representation Each character in the string shall take a value of "0" to "9", "a" to "f" or "A" to "F" and shall represent the support of 4 features as described in table 5.2.2-3.
+  # The most significant character representing the highest-numbered features shall appear first in the string, and the character representing features 1 to 4 shall appear last in the string. The list of features and their numbering (starting with 1) are defined separately for each API.
+  # If the string contains a lower number of characters than there are defined features for an API, all features that would be represented by characters that are not present in the string are not supported.
+  #
+  # It looks like the features supported by Open5gs are the following.
+  # OGS_SBI_NPCF_POLICYAUTHORIZATION_IMS_SBI -> 5
+  # OGS_SBI_NPCF_POLICYAUTHORIZATION_SPONSORED_CONNECTIVITY -> 2
+  # The bitmask: 00010010 --> 0x12
+  suppfeat: "12"
+
+  qos:
+    references:
+      # Undoing the mapping done by the Deutsche Telekom function
+      qod_1: qos-e
+      qod_2: qos-s
+      qod_3: qos-m
+      qod_4: qos-l
+      qod_5: qos-a
+      qod_6: qos-b
+      qod_7: qos-c
+      qod_8: qos-d
+      qod_9: qos-f
+      qod_10: qos-g
+      qod_11: qos-h
+      qod_12: qos-i
+      qod_13: qos-j
+      qod_14: qos-k
+      qod_15: qos-n
+      qod_16: qos-o
+      qod_17: qos-p
+      qod_18: qos-q
+      qod_19: qos-r
+      qod_20: qos-t
+
+    qosE:
+      marBwDl: "120 Mbps"
+      marBwUl: "120 Mbps"
+      mediaType: CONTROL
+    qosS:
+      marBwDl: "200 Kbps"
+      marBwUl: "200 Kbps"
+      mediaType: AUDIO
+    qosM:
+      marBwDl: "400 Kbps"
+      marBwUl: "400 Kbps"
+      mediaType: VIDEO
+    qosL:
+      marBwDl: "8 Mbps"
+      marBwUl: "1 Mbps"
+      mediaType: VIDEO
+    qosA:
+      marBwDl: "300 Kbps"
+      marBwUl: "100 Kbps"
+      mediaType: VIDEO   # 144p
+    qosB:
+      marBwDl: "500 Kbps"
+      marBwUl: "150 Kbps"
+      mediaType: VIDEO   # 240p
+    qosC:
+      marBwDl: "800 Kbps"
+      marBwUl: "200 Kbps"
+      mediaType: VIDEO   # 360p low
+    qosD:
+      marBwDl: "1 Mbps"
+      marBwUl: "250 Kbps"
+      mediaType: VIDEO   # 360p high
+    qosF:
+      marBwDl: "1.5 Mbps"
+      marBwUl: "300 Kbps"
+      mediaType: VIDEO   # 480p
+    qosG:
+      marBwDl: "2 Mbps"
+      marBwUl: "400 Kbps"
+      mediaType: VIDEO   # 480p high
+    qosH:
+      marBwDl: "3 Mbps"
+      marBwUl: "500 Kbps"
+      mediaType: VIDEO   # 720p low
+    qosI:
+      marBwDl: "4 Mbps"
+      marBwUl: "600 Kbps"
+      mediaType: VIDEO   # 720p standard
+    qosJ:
+      marBwDl: "5 Mbps"
+      marBwUl: "700 Kbps"
+      mediaType: VIDEO   # 720p high
+    qosK:
+      marBwDl: "6 Mbps"
+      marBwUl: "800 Kbps"
+      mediaType: VIDEO   # 1080p low
+    qosN:
+      marBwDl: "8 Mbps"
+      marBwUl: "1 Mbps"
+      mediaType: VIDEO   # 1080p standard
+    qosO:
+      marBwDl: "10 Mbps"
+      marBwUl: "1.2 Mbps"
+      mediaType: VIDEO   # 1080p high
+    qosP:
+      marBwDl: "12 Mbps"
+      marBwUl: "1.5 Mbps"
+      mediaType: VIDEO   # 1440p low
+    qosQ:
+      marBwDl: "15 Mbps"
+      marBwUl: "1.8 Mbps"
+      mediaType: VIDEO   # 1440p high
+    qosR:
+      marBwDl: "20 Mbps"
+      marBwUl: "2 Mbps"
+      mediaType: VIDEO   # 4K low
+    qosT:
+      marBwDl: "1 Gbps"
+      marBwUl: "2.5 Mbps"
+      mediaType: VIDEO   # 4K high

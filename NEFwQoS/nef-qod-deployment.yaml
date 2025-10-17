@@ -22,7 +22,7 @@ spec:
         kubernetes.io/hostname: kube-worker1
       containers:
         - name: qod-tf
-          image: tatendaupc/qod-tf:0.8.0
+          image: tatendaupc/qod-tf:v20
           env:
             - name: NEF_HOST
               value: "10.109.86.160"   # points to nef ClusterIP
@@ -73,7 +73,7 @@ spec:
         kubernetes.io/hostname: kube-worker1
       containers:
         - name: nef
-          image: tatendaupc/nef-lab:latest
+          image: tatendaupc/assessionwithqos:v20
           env:
             - name: NEF_HOST
               value: "10.109.86.160"   # points to nef ClusterIP

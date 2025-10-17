@@ -1,0 +1,32 @@
+services:
+  qod-tf:
+    image: tatendaupc/qod-tf:0.8.0
+    networks:
+      - camara
+    ports:
+      - "9091:9091"
+    restart: unless-stopped
+    environment:
+      NEF_HOST: 192.168.3.126
+      TF_HOST: 192.168.3.126
+    entrypoint: >
+      java --add-opens=java.base/java.net=ALL-UNNAMED 
+      -jar -Djava.security.egd=file:/dev/./urandom 
+      -Dlogging.file.path=/log 
+      -Dspring.profiles.active=local 
+      app.jar
+
+  nef:
+    image: tatendaupc/assessionwithqos:latest
+    networks:
+      - camara
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+    environment:
+      NEF_HOST: 192.168.3.126
+      MONGODB_URI: mongodb://192.168.3.129:30008/naas?authSource=admin
+      PCF_BASEPATH: http://192.168.3.129:30005/npcf-policyauthorization/v1
+
+networks:
+  camara: {}

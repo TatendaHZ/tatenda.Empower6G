@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: video-server
+  labels:
+    app: video-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: video-server
+  template:
+    metadata:
+      labels:
+        app: video-server
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: kube-app-server
+      containers:
+        - name: video-server
+          image: tatendaupc/video-server:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: video-server-svc
+spec:
+  type: NodePort
+  selector:
+    app: video-server
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30085

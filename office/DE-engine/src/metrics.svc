@@ -1,0 +1,86 @@
+{
+    "time": 1760522630.89615,
+    "ran_metrics": {
+        "time": 1760522630.89615,
+        "ue_list": [
+            {
+                "ran_ue_id": 115,
+                "amf_ue_id": 103,
+                "qos_flow_list": [
+                    {
+                        "pdu_session_id": 1,
+                        "dl_total_bytes": 0,
+                        "ul_total_bytes": 27208,
+                        "sst": 1
+                    }
+                ],
+                "rnti": 18035,
+                "cells": [
+                    {
+                        "cell_id": 1,
+                        "dl_bitrate": 10868,
+                        "ul_bitrate": 4707,
+                        "dl_tx": 2,
+                        "ul_tx": 2,
+                        "dl_err": 0,
+                        "ul_err": 0,
+                        "dl_retx": 0,
+                        "ul_retx": 0,
+                        "pusch_snr": 7.3,
+                        "epre": -104.5,
+                        "ul_phr": 38,
+                        "ul_path_loss": 57.1,
+                        "p_ue": -24,
+                        "ul_rank": 1,
+                        "ue_ul_bwp_id": 0,
+                        "ul_bwp_id": 0,
+                        "dl_mcs": 27,
+                        "ul_mcs": 4,
+                        "ul_n_layer": 1,
+                        "turbo_decoder_min": 2,
+                        "turbo_decoder_avg": 2,
+                        "turbo_decoder_max": 2,
+                        "cqi": 15,
+                        "ri": 2,
+                        "ue_dl_bwp_id": 0,
+                        "dl_bwp_id": 0,
+                        "initial_ta": 5
+                    }
+                ],
+                "ue_id": "1"
+            }
+        ]
+    },
+    "node_metrics": [
+        {
+            "core node": {
+                "cpu": "21.73737645397692",
+                "memory": "34.14289737377692",
+                "tx": "487179.7216432461",
+                "rx": "520652.9953607208",
+                "latency": "1.0",
+                "cost": "4"
+            }
+        },
+        {
+            "mec node": {
+                "cpu": "16.99169916991707",
+                "memory": "47.76854177979604",
+                "tx": "16209.887655432209",
+                "rx": "5624.829149581625",
+                "latency": "1.0",
+                "cost": "4"
+            }
+        },
+        {
+            "kube-app-server": {
+                "cpu": "19.73333333333307",
+                "memory": "62.79546747619749",
+                "tx": "16466.666666666668",
+                "rx": "121890.93333333333",
+                "latency": "1.0",
+                "cost": "4"
+            }
+        }
+    ]
+}

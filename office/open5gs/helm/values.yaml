@@ -53,19 +53,19 @@ af:
   image:
     repository: tatendaupc/tatenda-af
     tag: latest
-    pullPolicy: Always
+    pullPolicy: IfNotPresent
 
 as:
   enabled: true
   image:
     repository: tatendaupc/tatenda-as
     tag: latest
-    pullPolicy: Always
+    pullPolicy: IfNotPresent
 ap:
   enabled: true
   image:
     repository: tatendaupc/tatenda-ps
     tag: latest
-    pullPolicy: Always 
+    pullPolicy: IfNotPresent 
 smf: 
   addr: 10.10.159.50

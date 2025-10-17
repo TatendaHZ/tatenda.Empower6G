@@ -1,0 +1,87 @@
+{{- if .Values.as.enabled }}
+
+# Service for AS (Application Server)
+apiVersion: v1
+kind: Service
+metadata:
+  name: as-svc
+  labels:
+    app: as
+spec:
+  type: NodePort
+  clusterIP: 10.96.0.200
+  selector:
+    app: as
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      nodePort: 30085
+    - name: m3
+      port: 7777
+      targetPort: 7777
+---
+
+# Deployment for AS (Application Server)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: as-depl
+  labels:
+    app: as
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: as
+  template:
+    metadata:
+      labels:
+        app: as
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - {{ .Values.nodes.application | quote }}
+
+      initContainers:
+        - name: init-shared-folders
+          image: busybox
+          command:
+            - sh
+            - -c
+            - mkdir -p /shared/localhost /shared/192.168.2.6
+          volumeMounts:
+            - name: shared-dir
+              mountPath: /shared
+
+      containers:
+        - name: as
+          image: "{{ .Values.as.image.repository }}:{{ .Values.as.image.tag }}"
+          imagePullPolicy: {{ .Values.as.image.pullPolicy }}
+          ports:
+            - containerPort: 80
+            - containerPort: 7777
+          volumeMounts:
+            - name: as-config
+              mountPath: /etc/5gmag/as/conf/application-server.conf
+              subPath: application-server.conf
+            - name: shared-dir
+              mountPath: /shared
+
+      volumes:
+        - name: as-config
+          configMap:
+            name: as-config
+        - name: shared-dir
+          persistentVolumeClaim:
+            claimName: 5gms-shared-pvc
+      nodeSelector:
+        kubernetes.io/hostname: {{ .Values.nodes.application }}
+
+{{- end }}

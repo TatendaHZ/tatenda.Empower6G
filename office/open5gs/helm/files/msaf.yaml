@@ -172,7 +172,7 @@ msaf:
     sbi:
         - addr: 0.0.0.0
           port: 82
-          advertise: af-svc
+          advertise: 10.96.0.188
     m1:
         - addr: 0.0.0.0
           port: 5555
@@ -245,7 +245,7 @@ msaf:
 nrf:
     sbi:
         - addr:
-              - nrf-svc
+              - 10.101.41.194
           port: 7777
           
 

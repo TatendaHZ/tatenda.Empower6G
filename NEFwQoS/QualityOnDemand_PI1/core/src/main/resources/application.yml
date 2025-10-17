@@ -12,6 +12,22 @@ scef:
       qos-s: 4
       qos-m: 5
       qos-l: 6
+      qos-a: 7
+      qos-b: 8
+      qos-c: 9
+      qos-d: 10
+      qos-f: 11
+      qos-g: 12
+      qos-h: 13
+      qos-i: 14
+      qos-j: 15
+      qos-k: 16
+      qos-n: 17
+      qos-o: 18
+      qos-p: 19
+      qos-q: 20
+      qos-r: 21
+      qos-t: 22
     supportedFeatures: 003C
   notifications:
     url: http://${TF_HOST:localhost}:${TF_PORT:9091}/3gpp-as-session-with-qos/v1/notifications
@@ -35,6 +51,22 @@ qod:
       qos-s: qod_2
       qos-m: qod_3
       qos-l: qod_4
+      qos-a: qod_5
+      qos-b: qod_6
+      qos-c: qod_7
+      qos-d: qod_8
+      qos-f: qod_9
+      qos-g: qod_10
+      qos-h: qod_11
+      qos-i: qod_12
+      qos-j: qod_13
+      qos-k: qod_14
+      qos-n: qod_15
+      qos-o: qod_16
+      qos-p: qod_17
+      qos-q: qod_18
+      qos-r: qod_19
+      qos-t: qod_20
   expiration: # settings for session expiration handling (in seconds)
     time-before-handling: 20
     trigger-interval: 10
@@ -46,6 +78,7 @@ qod:
     url: http://localhost:8091
   duration:
     default: 600
+
 # Logging
 logging:
   file:
@@ -72,6 +105,7 @@ spring:
     redis:
       host: localhost
       port: 6379
+
 springdoc:
   swagger-ui:
     path: /swagger
