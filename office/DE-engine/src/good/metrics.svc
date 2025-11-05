@@ -1,0 +1,132 @@
+{
+    "time": 1761729412.940324,
+    "ran_metrics": {
+        "time": 1761729412.940324,
+        "ue_list": [
+            {
+                "ran_ue_id": 11,
+                "amf_ue_id": 11,
+                "qos_flow_list": [
+                    {
+                        "pdu_session_id": 1,
+                        "dl_total_bytes": 49770972,
+                        "ul_total_bytes": 816669,
+                        "sst": 1
+                    }
+                ],
+                "rnti": 17931,
+                "cells": [
+                    {
+                        "cell_id": 1,
+                        "dl_bitrate": 1300018,
+                        "ul_bitrate": 37518,
+                        "dl_tx": 457,
+                        "ul_tx": 145,
+                        "dl_err": 0,
+                        "ul_err": 0,
+                        "dl_retx": 107,
+                        "ul_retx": 17,
+                        "pusch_snr": 2.2,
+                        "epre": -109.6,
+                        "ul_phr": 30,
+                        "ul_path_loss": 63.9,
+                        "p_ue": -16,
+                        "ul_rank": 1,
+                        "ue_ul_bwp_id": 0,
+                        "ul_bwp_id": 0,
+                        "dl_mcs": 20.2,
+                        "ul_mcs": 0.8,
+                        "ul_n_layer": 1,
+                        "turbo_decoder_min": 1,
+                        "turbo_decoder_avg": 2.136,
+                        "turbo_decoder_max": 5,
+                        "cqi": 13,
+                        "ri": 2,
+                        "ue_dl_bwp_id": 0,
+                        "dl_bwp_id": 0,
+                        "initial_ta": 5
+                    }
+                ],
+                "ue_id": "2"
+            },
+            {
+                "ran_ue_id": 3,
+                "amf_ue_id": 3,
+                "qos_flow_list": [
+                    {
+                        "pdu_session_id": 1,
+                        "dl_total_bytes": 52986892,
+                        "ul_total_bytes": 978193,
+                        "sst": 1
+                    }
+                ],
+                "rnti": 17923,
+                "cells": [
+                    {
+                        "cell_id": 1,
+                        "dl_bitrate": 1205504,
+                        "ul_bitrate": 44238,
+                        "dl_tx": 422,
+                        "ul_tx": 168,
+                        "dl_err": 0,
+                        "ul_err": 0,
+                        "dl_retx": 26,
+                        "ul_retx": 16,
+                        "pusch_snr": 4.2,
+                        "epre": -109,
+                        "ul_phr": 34,
+                        "ul_path_loss": 62.8,
+                        "p_ue": -20,
+                        "ul_rank": 1,
+                        "ue_ul_bwp_id": 0,
+                        "ul_bwp_id": 0,
+                        "dl_mcs": 26.9,
+                        "ul_mcs": 2.2,
+                        "ul_n_layer": 1,
+                        "turbo_decoder_min": 1,
+                        "turbo_decoder_avg": 2.62,
+                        "turbo_decoder_max": 5,
+                        "cqi": 15,
+                        "ri": 2,
+                        "ue_dl_bwp_id": 0,
+                        "dl_bwp_id": 0,
+                        "initial_ta": 4
+                    }
+                ],
+                "ue_id": "1"
+            }
+        ]
+    },
+    "node_metrics": [
+        {
+            "core node": {
+                "cpu": "21.15044837817124",
+                "memory": "37.0948767778286",
+                "tx": "1321771.9105243857",
+                "rx": "1273907.3907390737",
+                "latency": "1.0",
+                "cost": "4"
+            }
+        },
+        {
+            "mec node": {
+                "cpu": "24.583333333333336",
+                "memory": "49.26871184680841",
+                "tx": "1119469.6",
+                "rx": "1096082.9333333333",
+                "latency": "1.0",
+                "cost": "4"
+            }
+        },
+        {
+            "kube-app-server": {
+                "cpu": "22.66666666666677",
+                "memory": "79.53779556694346",
+                "tx": "2246955.2",
+                "rx": "549035.7333333333",
+                "latency": "1.0",
+                "cost": "4"
+            }
+        }
+    ]
+}

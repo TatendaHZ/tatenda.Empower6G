@@ -1,46 +1,46 @@
 {
-    "time": 1760522630.89615,
+    "time": 1761122712.046646,
     "ran_metrics": {
-        "time": 1760522630.89615,
+        "time": 1761122712.046646,
         "ue_list": [
             {
-                "ran_ue_id": 115,
-                "amf_ue_id": 103,
+                "ran_ue_id": 828,
+                "amf_ue_id": 88,
                 "qos_flow_list": [
                     {
                         "pdu_session_id": 1,
-                        "dl_total_bytes": 0,
-                        "ul_total_bytes": 27208,
+                        "dl_total_bytes": 38119541,
+                        "ul_total_bytes": 307047,
                         "sst": 1
                     }
                 ],
-                "rnti": 18035,
+                "rnti": 18761,
                 "cells": [
                     {
                         "cell_id": 1,
-                        "dl_bitrate": 10868,
-                        "ul_bitrate": 4707,
-                        "dl_tx": 2,
-                        "ul_tx": 2,
-                        "dl_err": 0,
+                        "dl_bitrate": 1232931,
+                        "ul_bitrate": 46612,
+                        "dl_tx": 357,
+                        "ul_tx": 93,
+                        "dl_err": 20,
                         "ul_err": 0,
-                        "dl_retx": 0,
-                        "ul_retx": 0,
-                        "pusch_snr": 7.3,
-                        "epre": -104.5,
-                        "ul_phr": 38,
-                        "ul_path_loss": 57.1,
-                        "p_ue": -24,
+                        "dl_retx": 379,
+                        "ul_retx": 7,
+                        "pusch_snr": 17.9,
+                        "epre": -94.4,
+                        "ul_phr": 15,
+                        "ul_path_loss": 75.1,
+                        "p_ue": -2,
                         "ul_rank": 1,
                         "ue_ul_bwp_id": 0,
                         "ul_bwp_id": 0,
-                        "dl_mcs": 27,
-                        "ul_mcs": 4,
+                        "dl_mcs": 12.2,
+                        "ul_mcs": 15.7,
                         "ul_n_layer": 1,
-                        "turbo_decoder_min": 2,
-                        "turbo_decoder_avg": 2,
-                        "turbo_decoder_max": 2,
-                        "cqi": 15,
+                        "turbo_decoder_min": 1,
+                        "turbo_decoder_avg": 2.17,
+                        "turbo_decoder_max": 5,
+                        "cqi": 12,
                         "ri": 2,
                         "ue_dl_bwp_id": 0,
                         "dl_bwp_id": 0,
@@ -54,30 +54,30 @@
     "node_metrics": [
         {
             "core node": {
-                "cpu": "21.73737645397692",
-                "memory": "34.14289737377692",
-                "tx": "487179.7216432461",
-                "rx": "520652.9953607208",
+                "cpu": "23.280202741005255",
+                "memory": "34.507301055961776",
+                "tx": "1151999.199706559",
+                "rx": "1100819.6338657506",
                 "latency": "1.0",
                 "cost": "4"
             }
         },
         {
             "mec node": {
-                "cpu": "16.99169916991707",
-                "memory": "47.76854177979604",
-                "tx": "16209.887655432209",
-                "rx": "5624.829149581625",
+                "cpu": "20.95650409253755",
+                "memory": "50.14749086511399",
+                "tx": "19694.513968747888",
+                "rx": "14745.58614624907",
                 "latency": "1.0",
                 "cost": "4"
             }
         },
         {
             "kube-app-server": {
-                "cpu": "19.73333333333307",
-                "memory": "62.79546747619749",
-                "tx": "16466.666666666668",
-                "rx": "121890.93333333333",
+                "cpu": "26.44444444444465",
+                "memory": "80.07853918703586",
+                "tx": "1117786.9333333333",
+                "rx": "121847.46666666666",
                 "latency": "1.0",
                 "cost": "4"
             }
