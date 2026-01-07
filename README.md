@@ -32,6 +32,9 @@ This includes:
 ## 🔄 Restarting the System (Optional)
 
 Once Kubernetes is correctly set up, you can restart the entire platform at any time using:
+```bash
+sudo swapoff -a
+```
 
 ```bash
 python3 setupk8.py
