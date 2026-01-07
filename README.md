@@ -185,7 +185,7 @@ To collect and process system metrics:
 
 ```bash
 cd /home/generic/tatenda.Empower6G/office/DE-engine/src
-python3 server_mlmetric5day.py
+sudo python3 mlmetric5day.py
 ```
 
 This component handles:
