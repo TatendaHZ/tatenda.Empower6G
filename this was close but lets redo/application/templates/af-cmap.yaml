@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: msaf-config
-  namespace: af-core
-data:
-  msaf.yaml: |
-{{ .Files.Get "files/msaf.yaml" | indent 4 }}
-
