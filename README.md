@@ -199,7 +199,7 @@ This component handles:
 
 ### Transfer Metrics to the Server
 
-First, transfer collected metrics to the ML server:
+First, transfer collected metrics to the ML server: This is done on the windows machine 
 ```bash
 cd \Users\User\Desktop\server
 ```
@@ -212,7 +212,7 @@ python3 transfer_metrics.py
 
 ### Train the Models
 
-On the server, locate and run:
+On the server, locate and run: on the windows machine
 ```bash
 ssh user@195.251.58.122 -p 2315
 ```
@@ -223,9 +223,9 @@ source second_batch_venv/bin/activate
 ```bash
 cd /home/user/work/autoencoder/tatenda.Empower6G/office/DE-engine/src/daily_metrics/second_batch
 ```
-
+This step is optional since training has been done already
 ```bash
-python3 train_region_autoencoder.py
+#python3 train_region_autoencoder.py
 ```
 
 This trains region-based autoencoder models and stores them for inference.
