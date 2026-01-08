@@ -200,6 +200,9 @@ This component handles:
 ### Transfer Metrics to the Server
 
 First, transfer collected metrics to the ML server:
+```bash
+cd \Users\User\Desktop\server
+```
 
 ```bash
 python3 transfer_metrics.py
@@ -210,6 +213,9 @@ python3 transfer_metrics.py
 ### Train the Models
 
 On the server, locate and run:
+```bash
+ssh user@195.251.58.122 -p 2315
+```
 ```bash
 cd /home/user/work/autoencoder/tatenda.Empower6G/office/DE-engine/src/daily_metrics
 source second_batch_venv/bin/activate
