@@ -1,110 +1,98 @@
-# C:\run_and_save_metrics.py   ← Run this on Windows (double-click or cmd)
 import paramiko
-import csv
-import json
 import time
-from datetime import datetime
-import io
+from io import StringIO
 
-# === CONFIG ===
+# ----------------------------------------------
+# CONFIGURATION
+# ----------------------------------------------
 VM_HOST = "192.168.10.11"
 VM_USER = "generic"
 VM_PASSWORD = "11387333"
+VM_FILE = "/home/generic/tatenda.Empower6G/office/DE-engine/src/seven_days_metrics.csv"
 
-REMOTE_HOST = "195.251.58.122"
-REMOTE_PORT = 2315
-REMOTE_USER = "user"
-# (Windows already knows how to connect — uses your key or password)
+SERVER_HOST = "195.251.58.122"
+SERVER_PORT = 2315
+SERVER_USER = "user"
+SERVER_PATH = "/home/user/work/autoencoder/tatenda.Empower6G/office/DE-engine/src/daily_metrics/second_batch/seven_days_metrics.csv"
 
-BASE_PATH = "/home/user/work/autoencoder/tatenda.Empower6G/office/DE-engine/src/daily_metrics/second_batch"
-GENERAL_PATH = f"{BASE_PATH}/general"
-SEVEN_DAYS_FILE = f"{BASE_PATH}/seven_days_metrics.csv"
+# SET MODE: "full" to copy full file | "append" to append only last line
+COPY_MODE = "full"   # change to "append" if needed
 
-# Connect to final server (uses your existing Windows SSH config)
-print("Connecting to final server (195.251.58.122)...")
-remote_ssh = paramiko.SSHClient()
-remote_ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-remote_ssh.connect(hostname=REMOTE_HOST, port=REMOTE_PORT, username=REMOTE_USER)
-remote_sftp = remote_ssh.open_sftp()
+INTERVAL = 10   # seconds
 
-# Create folders
-for p in [BASE_PATH, GENERAL_PATH]:
-    try: remote_sftp.stat(p)
-    except:
-        cur = ""
-        for part in p.split("/")[1:]:
-            cur += "/" + part
-            try: remote_sftp.stat(cur)
-            except: remote_sftp.mkdir(cur)
 
-# Connect to VM
-print("Connecting to VM (192.168.10.11)...")
-vm_ssh = paramiko.SSHClient()
-vm_ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-vm_ssh.connect(hostname=VM_HOST, username=VM_USER, password=VM_PASSWORD)
+# ----------------------------------------------
+# SSH HELPERS
+# ----------------------------------------------
 
-# Start the original script on the VM
-print("Starting metrics collection on VM... (this will run for 7 days)")
-print("Live output below:\n" + "="*60)
+def ssh_connect(host, user, password=None, port=22):
+    """Create an SSH client connection"""
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    if password:
+        client.connect(host, port=port, username=user, password=password)
+    else:
+        client.connect(host, port=port, username=user)
+    return client
 
-stdin, stdout, stderr = vm_ssh.exec_command(
-    "cd ~/tatenda.Empower6G/office/DE-engine/src && python3 server_mlmetric5day.py"
-)
 
-# Read output line by line
-buffer = ""
-for line in stdout:
-    line = line.rstrip()
-    print(line)  # ← All original printing appears exactly as before
+def sftp_download(client, remote_path):
+    """Download file content from remote machine"""
+    sftp = client.open_sftp()
+    with sftp.file(remote_path, 'r') as f:
+        return f.read().decode()
+    
 
-    buffer += line + "\n"
-    if "{" in line and "}" in line:  # rough JSON detection
-        try:
-            # Extract JSON block
-            start = buffer.rfind("{")
-            end = buffer.rfind("}") + 1
-            json_str = buffer[start:end]
-            data = json.loads(json_str)
+def sftp_upload_content(client, content, remote_path):
+    """Upload text content to remote file"""
+    sftp = client.open_sftp()
+    with sftp.file(remote_path, 'w') as f:
+        f.write(content)
+    sftp.close()
 
-            # Build CSV row
-            row = {"timestamp": datetime.now().timestamp()}
-            # nodes
-            for node_name, metrics in data.get("nodes", {}).items():
-                for k, v in metrics.items():
-                    row[f"{node_name}_{k}"] = float(v) if v != "N/A" else 0.0
-            # UEs
-            for ue in data.get("ues", []):
-                ue_id = ue.get("ue_id", 1)
-                for k, v in ue.items():
-                    if k != "ue_id":
-                        row[f"ue{ue_id}_{k}"] = float(v) if isinstance(v, (int, float)) else 0.0
 
-            # Save to both files on final server
-            def save_csv(path, row_dict):
-                content = b""
-                try:
-                    with remote_sftp.open(path, "rb") as f:
-                        content = f.read()
-                except: pass
-                buf = io.BytesIO(content or b"")
-                writer = csv.DictWriter(io.TextIOWrapper(buf, encoding="utf-8"), fieldnames=row_dict.keys())
-                if not content:
-                    writer.writeheader()
-                writer.writerow(row_dict)
-                buf.seek(0)
-                with remote_sftp.open(path, "wb") as f:
-                    f.write(buf.read())
+def sftp_append_content(client, content, remote_path):
+    """Append text to file on server"""
+    sftp = client.open_sftp()
+    with sftp.file(remote_path, 'a') as f:
+        f.write(content)
+    sftp.close()
 
-            save_csv(SEVEN_DAYS_FILE, row)
-            today_file = f"{GENERAL_PATH}/daily_metrics_{datetime.now():%Y-%m-%d}.csv"
-            save_csv(today_file, row)
 
-            print(f"SAVED → {SEVEN_DAYS_FILE.split('/')[-1]} | daily_metrics_{datetime.now():%Y-%m-%d}.csv")
-            buffer = ""  # clear after successful parse
-        except:
-            pass  # not valid JSON yet, wait for full block
+# ----------------------------------------------
+# MAIN LOOP
+# ----------------------------------------------
 
-# Cleanup
-vm_ssh.close()
-remote_ssh.close()
-print("Finished.")
+print("Starting metrics sync every 10 seconds...")
+
+while True:
+    try:
+        # ---- CONNECT TO VM AND GET CSV ----
+        vm_client = ssh_connect(VM_HOST, VM_USER, VM_PASSWORD)
+        csv_data = sftp_download(vm_client, VM_FILE)
+        vm_client.close()
+
+        # ---- PROCESS FOR APPEND MODE ----
+        if COPY_MODE == "append":
+            last_line = csv_data.strip().split("\n")[-1] + "\n"
+            content_to_upload = last_line
+        else:
+            content_to_upload = csv_data
+
+        # ---- CONNECT TO SERVER AND UPLOAD ----
+        server_client = ssh_connect(SERVER_HOST, SERVER_USER, port=SERVER_PORT)
+        
+        if COPY_MODE == "append":
+            sftp_append_content(server_client, content_to_upload, SERVER_PATH)
+            print("✔ Appended last line to server.")
+        else:
+            sftp_upload_content(server_client, content_to_upload, SERVER_PATH)
+            print("✔ Uploaded full file to server.")
+
+        server_client.close()
+
+    except Exception as e:
+        print("❌ ERROR:", e)
+
+    # ---- WAIT BEFORE NEXT UPDATE ----
+    time.sleep(INTERVAL)
