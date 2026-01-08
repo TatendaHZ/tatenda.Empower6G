@@ -237,7 +237,7 @@ This trains region-based autoencoder models and stores them for inference.
 Run the real-time detector:
 
 ```bash
-sudo python3 realtime_detector.py
+python3 realtime_detector.py
 ```
 
 This enables live anomaly detection and streaming inference.
