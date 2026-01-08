@@ -1,3 +1,0 @@
-# 5G core crawler
-
-
