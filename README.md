@@ -210,6 +210,13 @@ python3 transfer_metrics.py
 ### Train the Models
 
 On the server, locate and run:
+```bash
+cd /home/user/work/autoencoder/tatenda.Empower6G/office/DE-engine/src/daily_metrics
+source second_batch_venv/bin/activate
+```
+```bash
+cd /home/user/work/autoencoder/tatenda.Empower6G/office/DE-engine/src/daily_metrics/second_batch
+```
 
 ```bash
 python3 train_region_autoencoder.py
