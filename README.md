@@ -1,6 +1,4 @@
 
----
-
 ## 📋 Prerequisites
 
 Before starting, ensure you have the following:
@@ -32,6 +30,7 @@ This includes:
 ## 🔄 Restarting the System (Optional)
 
 Once Kubernetes is correctly set up, you can restart the entire platform at any time using:
+
 ```bash
 sudo swapoff -a
 ```
@@ -173,8 +172,8 @@ sudo ./build/nr-ue -c config/open5gs-ue.yaml
 In separate terminals, run:
 
 ```bash
-python3 /home/ueransim/test_api/server.py
-python3 /home/ueransim/scrap.py
+sudo python3 /home/ueransim/test_api/server.py
+sudo python3 /home/ueransim/scrap.py
 ```
 
 ---
@@ -196,9 +195,101 @@ This component handles:
 
 ---
 
-## ✅ Final Checks
+## 🤖 Step 8: Machine Learning & Anomaly Detection Pipeline
 
-Ensure all pods are running:
+### Transfer Metrics to the Server
+
+First, transfer collected metrics to the ML server:
+
+```bash
+python3 transfer_metrics.py
+```
+
+---
+
+### Train the Models
+
+On the server, locate and run:
+
+```bash
+python3 train_region_autoencoder.py
+```
+
+This trains region-based autoencoder models and stores them for inference.
+
+---
+
+### Enable Live Anomaly Detection
+
+Run the real-time detector:
+
+```bash
+sudo python3 realtime_detector.py
+```
+
+This enables live anomaly detection and streaming inference.
+
+---
+
+## 🎥 Step 9: CAMARA & NEF Integration
+
+### CAMARA QoD Playground
+
+CAMARA is based on:
+[https://github.com/Fundacio-i2CAT/ASSessionWithQoS/blob/master/docs/deployment.md](https://github.com/Fundacio-i2CAT/ASSessionWithQoS/blob/master/docs/deployment.md)
+
+⚠️ Custom modifications were applied to support multiple users.
+
+---
+
+### NEF + CAMARA QoD Deployment
+
+```bash
+cd /home/generic/tatenda.Empower6G/NEFwQoS
+kubectl apply -f nef-qod-deployment.yaml
+```
+
+---
+
+### PCC Rule Configuration
+
+Before launching NEF, update **PCC rules** via the Open5GS WebUI as described in the CAMARA documentation.
+
+---
+
+### CAMARA Session Management
+
+```bash
+cd /home/generic/tatenda.Empower6G/office/DE-engine/src/camara
+```
+
+Scripts available:
+
+* `create_session.py`
+* `delete_session.py`
+* `session.py`
+* `session_info.txt`
+
+---
+
+## 🎚️ Network Gain Control
+
+```bash
+cd /home/generic/tatenda.Empower6G/office/DE-engine/src/gain
+```
+
+Run one of the following:
+
+```bash
+python3 change_gain.py low
+python3 change_gain.py medium
+python3 change_gain.py high
+python3 change_gain.py max
+```
+
+---
+
+## ✅ Final Checks
 
 ```bash
 kubectl get pods -A
@@ -206,7 +297,8 @@ kubectl get pods -A
 
 Verify:
 
-* Prometheus and Grafana NodePorts are accessible
+* All pods are running
+* Grafana and Prometheus NodePorts are reachable
 * UERANSIM successfully registers with Open5GS
 
 ---
@@ -221,11 +313,11 @@ Verify:
 
 ## 📌 License & Credits
 
-This setup integrates the following open-source projects:
+This setup integrates:
 
-* **Open5GS**
-* **UERANSIM**
-* **Kubernetes**
-* **Prometheus & Grafana**
+* Open5GS
+* UERANSIM
+* Kubernetes
+* Prometheus & Grafana
 
 All third-party tools follow their respective licenses.
